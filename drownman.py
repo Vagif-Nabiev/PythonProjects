@@ -1,10 +1,15 @@
 import random
+import pycountry
+import pandas as pd
 
-word_list = ["ayhan", "melih", "emre"]
+country_names = [country.name for country in pycountry.countries]
+
+df = pd.DataFrame(country_names, columns=["Country Name"])
+
 correct_letters = []
 
-random_index = random.randint(0, len(word_list) - 1)
-chosen_word = word_list[random_index]
+random_index = random.randint(0, len(country_names) - 1)
+chosen_word = country_names[random_index]
 print("chosen word: " + chosen_word)
 
 guesses = 0
