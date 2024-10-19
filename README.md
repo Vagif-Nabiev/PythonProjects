@@ -1,6 +1,6 @@
-# Country Guessing Game
 
-This project is a simple command-line guessing game where the player has to guess the letters of a randomly chosen country's name. The game is similar to Hangman but uses country names as the words to guess.
+<details>
+<summary>1. Country Guessing Game</summary>
 
 ## How It Works:
 - A random country is selected from a list of all the countries in the world using the `pycountry` library.
@@ -21,3 +21,5 @@ This project is a simple command-line guessing game where the player has to gues
 4. You win if you guess the country's name, and lose if you make 7 incorrect guesses.
 
 Enjoy the game!
+
+</details>
