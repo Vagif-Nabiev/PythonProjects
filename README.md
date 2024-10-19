@@ -20,6 +20,6 @@
 3. Try to guess the entire country's name before running out of guesses.
 4. You win if you guess the country's name, and lose if you make 7 incorrect guesses.
 
-Enjoy the game!
+Enjoy the [game](https://github.com/Vagif-Nabiev/PythonProjects/blob/main/geoguess.py)!
 
 </details>
