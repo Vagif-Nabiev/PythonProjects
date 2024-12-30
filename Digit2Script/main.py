@@ -46,7 +46,7 @@ line_height = line_spacing - 10  # Slight padding above and below
 for char in user_input:
     if char == " ":
         # Add space for spaces
-        x += int(line_height * 1.1)  # Space for " " (30% of line height)
+        x += int(line_height * 1.1)  # Space for " "
         continue
 
     if char in letter_map:
