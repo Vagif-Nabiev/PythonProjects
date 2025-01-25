@@ -71,7 +71,7 @@ while True:
             history.append(f"Decoded: {text} -> {decoded_text} with shift {shift}")
 
         # Ask if the user wants to continue
-        continue_choice = input("Do you want to encode or decode again? (yes/no):\n").lower()
+        continue_choice = input("Do you want to encode, decode again? or check history (yes/no):\n").lower()
         if continue_choice == 'no':
             print("Goodbye!")
             break
