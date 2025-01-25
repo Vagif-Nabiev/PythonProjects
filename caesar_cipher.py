@@ -1,42 +1,48 @@
 alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
             'v', 'w', 'x', 'y', 'z']
-
+numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 
 def encrypt(original_text, shift_amount):
     hidden_text = ''
-    for letter in original_text:
-        if letter.isalpha():
-            is_upper = letter.isupper()
-            letter = letter.lower()
-            shifted_position = alphabet.index(letter) + shift_amount
+    for char in original_text:
+        if char.isalpha():
+            is_upper = char.isupper()
+            char = char.lower()
+            shifted_position = alphabet.index(char) + shift_amount
             shifted_position %= len(alphabet)
-            new_letter = alphabet[shifted_position]
+            new_char = alphabet[shifted_position]
             if is_upper:
-                hidden_text += new_letter.upper()
+                hidden_text += new_char.upper()
             else:
-                hidden_text += new_letter
+                hidden_text += new_char
+        elif char.isdigit():
+            shifted_position = numbers.index(char) + shift_amount
+            shifted_position %= len(numbers)
+            hidden_text += numbers[shifted_position]
         else:
-            hidden_text += letter
+            hidden_text += char
     return hidden_text
-
 
 def decrypt(original_text, shift_amount):
     hidden_text = ''
-    for letter in original_text:
-        if letter.isalpha():
-            is_upper = letter.isupper()
-            letter = letter.lower()
-            shifted_position = alphabet.index(letter) - shift_amount
+    for char in original_text:
+        if char.isalpha():
+            is_upper = char.isupper()
+            char = char.lower()
+            shifted_position = alphabet.index(char) - shift_amount
             shifted_position %= len(alphabet)
-            new_letter = alphabet[shifted_position]
+            new_char = alphabet[shifted_position]
             if is_upper:
-                hidden_text += new_letter.upper()
+                hidden_text += new_char.upper()
             else:
-                hidden_text += new_letter
+                hidden_text += new_char
+        elif char.isdigit():
+            shifted_position = numbers.index(char) - shift_amount
+            shifted_position %= len(numbers)
+            hidden_text += numbers[shifted_position]
         else:
-            hidden_text += letter
+            hidden_text += char
     return hidden_text
-
 
 def get_valid_shift():
     while True:
@@ -49,10 +55,9 @@ def get_valid_shift():
         except ValueError:
             print("Please enter a valid number.")
 
-
 history = []
 while True:
-    direction = input("Type 'encode' to encrypt, 'decode' to decrypt, 'exit' to quit,or 'hisotry' to check operation history:\n").lower()
+    direction = input("Type 'encode' to encrypt, 'decode' to decrypt, 'exit' to quit, or 'history' to check operation history:\n").lower()
 
     if direction in ['encode', 'decode']:
         text = input("Type your message:\n")
@@ -67,7 +72,7 @@ while True:
             print('Decoded text: ' + decoded_text)
             history.append(f"Decoded: {text} -> {decoded_text} with shift {shift}")
 
-        continue_choice = input("Do you want to encode, decode again? or check history (yes/no):\n").lower()
+        continue_choice = input("Do you want to encode, decode or check history again? (yes/no):\n").lower()
         if continue_choice == 'no':
             print("Goodbye!")
             break
