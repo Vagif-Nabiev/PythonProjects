@@ -6,7 +6,6 @@ def encrypt(original_text, shift_amount):
     hidden_text = ''
     for letter in original_text:
         if letter.isalpha():
-            # Handle both lowercase and uppercase
             is_upper = letter.isupper()
             letter = letter.lower()
             shifted_position = alphabet.index(letter) + shift_amount
@@ -17,7 +16,7 @@ def encrypt(original_text, shift_amount):
             else:
                 hidden_text += new_letter
         else:
-            hidden_text += letter  # Keep non-alphabet characters unchanged
+            hidden_text += letter
     return hidden_text
 
 
@@ -25,7 +24,6 @@ def decrypt(original_text, shift_amount):
     hidden_text = ''
     for letter in original_text:
         if letter.isalpha():
-            # Handle both lowercase and uppercase
             is_upper = letter.isupper()
             letter = letter.lower()
             shifted_position = alphabet.index(letter) - shift_amount
@@ -36,7 +34,7 @@ def decrypt(original_text, shift_amount):
             else:
                 hidden_text += new_letter
         else:
-            hidden_text += letter  # Keep non-alphabet characters unchanged
+            hidden_text += letter
     return hidden_text
 
 
@@ -52,8 +50,7 @@ def get_valid_shift():
             print("Please enter a valid number.")
 
 
-history = []  # To store history of encoded and decoded messages
-
+history = []
 while True:
     direction = input("Type 'encode' to encrypt, 'decode' to decrypt, 'exit' to quit,or 'hisotry' to check operation history:\n").lower()
 
@@ -70,7 +67,6 @@ while True:
             print('Decoded text: ' + decoded_text)
             history.append(f"Decoded: {text} -> {decoded_text} with shift {shift}")
 
-        # Ask if the user wants to continue
         continue_choice = input("Do you want to encode, decode again? or check history (yes/no):\n").lower()
         if continue_choice == 'no':
             print("Goodbye!")
