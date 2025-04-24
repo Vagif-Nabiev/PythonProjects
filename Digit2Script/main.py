@@ -1,4 +1,5 @@
 import random
+from flask import Flask
 from PIL import Image, ImageDraw, ImageEnhance
 
 # Letter map for mapping letters to their respective images
@@ -46,7 +47,8 @@ line_height = line_spacing - 10  # Slight padding above and below
 for char in user_input:
     if char == " ":
         # Add space for spaces
-        x += int(line_height * 1.1)  # Space for " "
+        space_width = random.uniform(line_height*0.3 , line_height*0.7)
+        x += int(space_width) # Space for " "
         continue
 
     if char in letter_map:
@@ -56,7 +58,7 @@ for char in user_input:
 
         # Darken the letter image
         brightness_enhancer = ImageEnhance.Brightness(letter_img)
-        letter_img = brightness_enhancer.enhance(1.0)  # Adjust to make it darker
+        letter_img = brightness_enhancer.enhance(2.0)  # Adjust to make it darker
 
         # Sharpen the letter image
         sharpness_enhancer = ImageEnhance.Sharpness(letter_img)
