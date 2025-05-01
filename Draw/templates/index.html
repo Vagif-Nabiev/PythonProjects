@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Handwritten Text Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Handwritten Text Generator</h1>
+        
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="draw">Draw Letters</button>
+            <button class="tab-btn" data-tab="generate">Generate Text</button>
+            <button class="tab-btn" data-tab="manage">Manage Letters</button>
+        </div>
+
+        <div class="tab-content" id="draw-tab">
+            <div class="drawing-container">
+                <canvas id="drawingCanvas"></canvas>
+                <div class="controls">
+                    <input type="text" id="letterInput" placeholder="Enter letter to draw" maxlength="1">
+                    <div class="brush-control">
+                        <label for="brushSize">Brush Size:</label>
+                        <input type="range" id="brushSize" min="1" max="20" value="2">
+                    </div>
+                    <button id="saveLetter">Save Letter</button>
+                    <button id="clearCanvas">Clear</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="generate-tab" style="display: none;">
+            <div class="text-generator">
+                <textarea id="textInput" placeholder="Type your text here..."></textarea>
+                <button id="generateText">Generate Handwritten Text</button>
+                <div id="previewContainer"></div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="manage-tab" style="display: none;">
+            <div id="lettersManagerContainer">
+                <h2>Manage Saved Letters</h2>
+                <div id="lettersGrid"></div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html> 
