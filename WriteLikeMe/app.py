@@ -7,9 +7,10 @@ from io import BytesIO
 
 app = Flask(__name__)
 
-# Create letters directory if it doesn't exist
-if not os.path.exists('letters'):
-    os.makedirs('letters')
+# Use absolute path for letters directory
+LETTERS_DIR = '/home/Vagifnbv/mysite/letters'
+if not os.path.exists(LETTERS_DIR):
+    os.makedirs(LETTERS_DIR)
 
 def save_base64_image(base64_string, filename):
     if ',' in base64_string:
@@ -19,17 +20,14 @@ def save_base64_image(base64_string, filename):
 
     orig_w, orig_h = image.size
 
-    # Crop to content
     bbox = image.getbbox()
     if bbox:
         cropped = image.crop(bbox)
-        # Resize cropped letter to fill the original box
         cropped = cropped.resize((orig_w, orig_h), Image.Resampling.LANCZOS)
         image = cropped
 
     image.save(filename, 'PNG')
 
-# Define offsets for specific letters that need to be placed lower
 letter_offsets = {
     "f": 10, "p": 10, "q": 10, "g": 10, "j": 15, "y": 10
 }
@@ -44,11 +42,9 @@ def save_letter():
     letter = data['letter']
     image_data = data['image']
     
-    # Generate a unique filename for the letter
-    count = len([f for f in os.listdir('letters') if f.startswith(letter)])
-    filename = f"letters/{letter}{count + 1}_{count + 1}.png"
+    count = len([f for f in os.listdir(LETTERS_DIR) if f.startswith(letter)])
+    filename = os.path.join(LETTERS_DIR, f"{letter}{count + 1}_{count + 1}.png")
     
-    # Save the image
     save_base64_image(image_data, filename)
     
     return jsonify({'success': True})
@@ -58,70 +54,88 @@ def generate_text():
     data = request.json
     text = data['text']
 
-    # Canvas settings
     canvas_width = 1000
     canvas_height = 1000
     line_spacing = 40
     margin_x = 50
     x, y = margin_x, 50
 
-    # Create a blank canvas with lines
     canvas = Image.new("RGB", (canvas_width, canvas_height), "white")
     draw = ImageDraw.Draw(canvas)
 
-    # Draw lines for the blank paper
     for line_y in range(0, canvas_height, line_spacing):
         draw.line([(0, line_y), (canvas_width, line_y)], fill="lightgray", width=1)
 
-    # Target height to fit letters between the lines
     line_height = line_spacing - 10
 
+    # Collect all available letters
+    available_letters = set()
+    for f in os.listdir(LETTERS_DIR):
+        if f.lower().endswith('.png'):
+            available_letters.add(f[0])
+
+    # Find missing letters in the input text (ignore spaces)
+    missing_letters = set()
+    for char in text:
+        if char == ' ':
+            continue
+        if char not in available_letters and char.lower() not in available_letters and char.upper() not in available_letters:
+            missing_letters.add(char)
+
+    # Render text as before, but skip missing letters
     for char in text:
         if char == " ":
             space_width = int(line_height * 0.5)
             x += space_width
             continue
 
-        letter_files = [f for f in os.listdir('letters') if f.startswith(char.lower())]
+        # Try to find the letter in any case
+        letter_files = [f for f in os.listdir(LETTERS_DIR) if f.startswith(char)]
+        if not letter_files:
+            letter_files = [f for f in os.listdir(LETTERS_DIR) if f.startswith(char.lower())]
+        if not letter_files:
+            letter_files = [f for f in os.listdir(LETTERS_DIR) if f.startswith(char.upper())]
         if not letter_files:
             continue
 
-        img_path = f"letters/{random.choice(letter_files)}"
+        img_path = os.path.join(LETTERS_DIR, random.choice(letter_files))
         letter_img = Image.open(img_path).convert("RGBA")
 
-        # Resize letter to fit between lines
         aspect_ratio = letter_img.width / letter_img.height
         target_width = int(line_height * aspect_ratio)
         letter_img = letter_img.resize((target_width, line_height), Image.Resampling.LANCZOS)
 
-        # Paste letter at current position
         canvas.paste(letter_img, (x, y), mask=letter_img)
 
         x += target_width
 
-        # Move to next line if needed
         if x + target_width > canvas_width:
             x = margin_x
             y += line_spacing
             if y + line_height > canvas_height:
                 break
 
-    # Convert to base64 for web
     buffered = BytesIO()
     canvas.save(buffered, format="PNG")
     img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
-    return jsonify({'image': f"data:image/png;base64,{img_str}"})
+
+    response = {'image': f"data:image/png;base64,{img_str}"}
+    if not available_letters:
+        response['warning'] = 'No letters have been saved yet. Please draw and save some letters first.'
+    elif missing_letters:
+        response['warning'] = f"The following letters are missing and could not be rendered: {', '.join(sorted(missing_letters))}"
+        response['missing_letters'] = sorted(missing_letters)
+    return jsonify(response)
 
 @app.route('/letters/<path:filename>')
 def serve_letter_image(filename):
-    return send_from_directory('letters', filename)
+    return send_from_directory(LETTERS_DIR, filename)
 
 @app.route('/list_letters')
 def list_letters():
-    files = [f for f in os.listdir('letters') if f.lower().endswith('.png')]
+    files = [f for f in os.listdir(LETTERS_DIR) if f.lower().endswith('.png')]
     letters = []
     for f in files:
-        # Try to extract the letter from the filename
         letter = f[0]
         letters.append({'filename': f, 'letter': letter})
     return jsonify({'letters': letters})
@@ -132,7 +146,7 @@ def delete_letter():
     filename = data.get('filename')
     if not filename:
         return jsonify({'success': False, 'error': 'No filename provided'}), 400
-    file_path = os.path.join('letters', filename)
+    file_path = os.path.join(LETTERS_DIR, filename)
     if os.path.exists(file_path):
         os.remove(file_path)
         return jsonify({'success': True})

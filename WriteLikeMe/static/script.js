@@ -35,12 +35,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const rect = canvas.getBoundingClientRect();
         const scaleX = canvas.width / rect.width;
         const scaleY = canvas.height / rect.height;
+        
+        // Handle both mouse and touch events
+        let clientX, clientY;
+        if (evt.type.includes('touch')) {
+            clientX = evt.touches[0].clientX;
+            clientY = evt.touches[0].clientY;
+        } else {
+            clientX = evt.clientX;
+            clientY = evt.clientY;
+        }
+        
         return {
-            x: (evt.clientX - rect.left) * scaleX,
-            y: (evt.clientY - rect.top) * scaleY
+            x: (clientX - rect.left) * scaleX,
+            y: (clientY - rect.top) * scaleY
         };
     }
 
+    // Mouse events
     canvas.addEventListener('mousedown', (e) => {
         isDrawing = true;
         const pos = getMousePos(canvas, e);
@@ -50,16 +62,38 @@ document.addEventListener('DOMContentLoaded', () => {
     canvas.addEventListener('mousemove', (e) => {
         if (!isDrawing) return;
         const pos = getMousePos(canvas, e);
-        ctx.beginPath();
-        ctx.moveTo(lastX, lastY);
-        ctx.lineTo(pos.x, pos.y);
-        ctx.strokeStyle = '#000';
-        ctx.stroke();
+        drawLine(lastX, lastY, pos.x, pos.y);
         [lastX, lastY] = [pos.x, pos.y];
     });
 
+    // Touch events
+    canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault(); // Prevent scrolling
+        isDrawing = true;
+        const pos = getMousePos(canvas, e);
+        [lastX, lastY] = [pos.x, pos.y];
+    });
+
+    canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault(); // Prevent scrolling
+        if (!isDrawing) return;
+        const pos = getMousePos(canvas, e);
+        drawLine(lastX, lastY, pos.x, pos.y);
+        [lastX, lastY] = [pos.x, pos.y];
+    });
+
+    function drawLine(x1, y1, x2, y2) {
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = '#000';
+        ctx.stroke();
+    }
+
     canvas.addEventListener('mouseup', stopDrawing);
     canvas.addEventListener('mouseout', stopDrawing);
+    canvas.addEventListener('touchend', stopDrawing);
+    canvas.addEventListener('touchcancel', stopDrawing);
 
     function stopDrawing() {
         isDrawing = false;
@@ -78,9 +112,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Save letter
     saveButton.addEventListener('click', async () => {
-        const letter = letterInput.value.toLowerCase();
-        if (!letter || !/^[a-z]$/.test(letter)) {
-            alert('Please enter a valid letter (a-z)');
+        const letter = letterInput.value;
+        if (!letter || !/^[a-zA-Z]$/.test(letter)) {
+            alert('Please enter a valid letter (A-Z or a-z)');
             return;
         }
 
@@ -130,7 +164,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.ok) {
                 const data = await response.json();
-                previewContainer.innerHTML = `<img src="${data.image}" alt="Generated text" style="max-width: 100%;">`;
+                let warningHtml = '';
+                if (data.warning) {
+                    warningHtml = `<div style="color: #b30000; background: #fff3cd; border: 1px solid #ffeeba; padding: 10px; margin-bottom: 10px; border-radius: 6px; font-weight: bold;">${data.warning}</div>`;
+                }
+                previewContainer.innerHTML = `${warningHtml}<img src="${data.image}" alt="Generated text" style="max-width: 100%;">`;
             } else {
                 alert('Error generating text');
             }
@@ -142,26 +180,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Manage Letters Tab Logic ---
     async function loadLetters() {
-        lettersGrid.innerHTML = '<p>Loading...</p>';
+        const lowercaseGrid = document.getElementById('lettersGrid');
+        const uppercaseGrid = document.getElementById('uppercaseGrid');
+        
+        lowercaseGrid.innerHTML = '<p>Loading...</p>';
+        uppercaseGrid.innerHTML = '<p>Loading...</p>';
+        
         try {
             const response = await fetch('/list_letters');
             if (!response.ok) throw new Error('Failed to fetch letters');
             const data = await response.json();
+            
             if (!data.letters.length) {
-                lettersGrid.innerHTML = '<p>No letters saved yet.</p>';
+                lowercaseGrid.innerHTML = '<p>No letters saved yet.</p>';
+                uppercaseGrid.innerHTML = '<p>No letters saved yet.</p>';
                 return;
             }
-            lettersGrid.innerHTML = '';
-            data.letters.forEach(letterObj => {
+
+            // Clear grids
+            lowercaseGrid.innerHTML = '';
+            uppercaseGrid.innerHTML = '';
+
+            // Sort letters into lowercase and uppercase
+            const lowercaseLetters = data.letters.filter(letter => letter.letter === letter.letter.toLowerCase());
+            const uppercaseLetters = data.letters.filter(letter => letter.letter === letter.letter.toUpperCase());
+
+            // Function to create letter item
+            const createLetterItem = (letterObj) => {
                 const div = document.createElement('div');
                 div.className = 'letter-item';
                 div.innerHTML = `
-                    <div><b>${letterObj.letter}</b></div>
-                    <img src="/letters/${letterObj.filename}" alt="${letterObj.letter}" style="width:48px;height:48px;background:#fff;border:1px solid #ccc;display:block;margin:4px auto;">
+                    <div class="letter-label">${letterObj.letter}</div>
+                    <img src="/letters/${letterObj.filename}" alt="${letterObj.letter}">
                     <button data-filename="${letterObj.filename}" class="delete-letter-btn">Delete</button>
                 `;
-                lettersGrid.appendChild(div);
+                return div;
+            };
+
+            // Add letters to respective grids
+            lowercaseLetters.forEach(letterObj => {
+                lowercaseGrid.appendChild(createLetterItem(letterObj));
             });
+
+            uppercaseLetters.forEach(letterObj => {
+                uppercaseGrid.appendChild(createLetterItem(letterObj));
+            });
+
             // Add delete handlers
             document.querySelectorAll('.delete-letter-btn').forEach(btn => {
                 btn.onclick = async (e) => {
@@ -179,10 +243,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 };
             });
+
         } catch (err) {
-            lettersGrid.innerHTML = '<p>Error loading letters.</p>';
+            lowercaseGrid.innerHTML = '<p>Error loading letters.</p>';
+            uppercaseGrid.innerHTML = '<p>Error loading letters.</p>';
         }
     }
+
+    // Attach group-header event listeners ONCE, after DOM is loaded
+    document.querySelectorAll('.group-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const group = header.dataset.group;
+            const content = document.getElementById(`${group}-letters`);
+            const arrow = header.querySelector('.arrow');
+            header.classList.toggle('collapsed');
+            content.classList.toggle('active');
+        });
+    });
 
     // Tab switching (add manage tab logic)
     tabButtons.forEach(button => {

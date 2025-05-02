@@ -1,6 +1,4 @@
-// Wait for the DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
-    // Get all required elements
     const canvas = document.getElementById('drawingCanvas');
     const ctx = canvas.getContext('2d', { alpha: true }); // Enable alpha channel for transparency
     const colorPicker = document.getElementById('color');
@@ -8,26 +6,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const clearButton = document.getElementById('clear');
     const saveButton = document.getElementById('save');
 
-    // Set canvas size and DPI
     const targetWidth = 431;
     const targetHeight = 1000;
     const dpi = 96;
     
-    // Set physical size in pixels
     canvas.width = targetWidth;
     canvas.height = targetHeight;
     
-    // Set display size (CSS pixels)
     canvas.style.width = `${targetWidth}px`;
     canvas.style.height = `${targetHeight}px`;
 
-    // Set initial drawing style
     ctx.strokeStyle = colorPicker.value;
     ctx.lineWidth = sizePicker.value;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
-    // Drawing state
     let isDrawing = false;
     let lastX = 0;
     let lastY = 0;
@@ -38,7 +31,6 @@ document.addEventListener('DOMContentLoaded', function() {
         maxY: -Infinity
     };
 
-    // Drawing functions
     function startDrawing(e) {
         isDrawing = true;
         [lastX, lastY] = getMousePos(e);
@@ -83,47 +75,38 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function resizeAndCenterDrawing() {
-        // Get the current drawing data
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         
-        // Calculate the drawing dimensions
         const drawingWidth = drawingBounds.maxX - drawingBounds.minX;
         const drawingHeight = drawingBounds.maxY - drawingBounds.minY;
         
-        // Add some padding to the drawing bounds
         const padding = 20; // pixels of padding
         const paddedWidth = drawingWidth + (padding * 2);
         const paddedHeight = drawingHeight + (padding * 2);
         
-        // Calculate the scale factor to fit the canvas with padding
         const scaleX = (canvas.width - (padding * 2)) / paddedWidth;
         const scaleY = (canvas.height - (padding * 2)) / paddedHeight;
         const scale = Math.min(scaleX, scaleY);
         
-        // Calculate the new position to center the drawing
         const newWidth = paddedWidth * scale;
         const newHeight = paddedHeight * scale;
         const offsetX = (canvas.width - newWidth) / 2;
         const offsetY = (canvas.height - newHeight) / 2;
         
-        // Clear the canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // Create a temporary canvas to store the original drawing
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = canvas.width;
         tempCanvas.height = canvas.height;
         const tempCtx = tempCanvas.getContext('2d', { alpha: true });
         tempCtx.putImageData(imageData, 0, 0);
         
-        // Draw the resized and centered image with padding
         ctx.drawImage(tempCanvas, 
             drawingBounds.minX - padding, drawingBounds.minY - padding, 
             paddedWidth, paddedHeight,
             offsetX, offsetY, newWidth, newHeight
         );
         
-        // Reset drawing bounds
         drawingBounds = {
             minX: Infinity,
             minY: Infinity,
@@ -132,13 +115,11 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    // Event listeners
     canvas.addEventListener('mousedown', startDrawing);
     canvas.addEventListener('mousemove', draw);
     canvas.addEventListener('mouseup', stopDrawing);
     canvas.addEventListener('mouseout', stopDrawing);
 
-    // Touch support
     canvas.addEventListener('touchstart', (e) => {
         e.preventDefault();
         const touch = e.touches[0];
@@ -165,7 +146,6 @@ document.addEventListener('DOMContentLoaded', function() {
         canvas.dispatchEvent(mouseEvent);
     });
 
-    // Clear canvas
     clearButton.addEventListener('click', () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawingBounds = {
@@ -176,25 +156,19 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     });
 
-    // Save as PNG
     saveButton.addEventListener('click', () => {
-        // Resize and center the drawing before saving
         resizeAndCenterDrawing();
         
-        // Create a new canvas with exact specifications
         const exportCanvas = document.createElement('canvas');
         exportCanvas.width = targetWidth;
         exportCanvas.height = targetHeight;
         const exportCtx = exportCanvas.getContext('2d', { alpha: true });
         
-        // Copy the drawing to the export canvas
         exportCtx.drawImage(canvas, 0, 0);
         
-        // Create the download link
         const link = document.createElement('a');
         link.download = 'handwriting.png';
         
-        // Convert to PNG with 32-bit depth
         const pngData = exportCanvas.toDataURL('image/png', 1.0);
         link.href = pngData;
         link.click();
