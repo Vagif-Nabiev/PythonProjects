@@ -53,16 +53,42 @@
                     </div>
                     <div class="brush-control">
                         <label for="brushSize">Brush Size:</label>
-                        <input type="range" id="brushSize" min="1" max="20" value="2">
+                        <div class="brush-size-container">
+                            <input type="range" id="brushSize" min="1" max="20" value="2">
+                            <div class="brush-preview-container">
+                                <div id="brushPreview"></div>
+                                <span id="brushSizeValue">2px</span>
+                            </div>
+                            <p class="brush-help-text">Recommended size: 4-6px for best results</p>
+                        </div>
                     </div>
-                    <button id="saveLetter">Save Letter</button>
-                    <button id="clearCanvas">Clear</button>
+                    <div class="action-buttons">
+                        <button id="saveLetter">Save Letter</button>
+                        <button id="clearCanvas">Clear</button>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="tab-content" id="generate-tab" style="display: none;">
             <div class="text-generator">
+                <div class="page-style-options">
+                    <h3>Page Style</h3>
+                    <div class="style-options">
+                        <label class="style-option">
+                            <input type="radio" name="pageStyle" value="lined" checked>
+                            <span>Lined Paper</span>
+                        </label>
+                        <label class="style-option">
+                            <input type="radio" name="pageStyle" value="grid">
+                            <span>Grid Paper</span>
+                        </label>
+                        <label class="style-option">
+                            <input type="radio" name="pageStyle" value="blank">
+                            <span>Blank Paper</span>
+                        </label>
+                    </div>
+                </div>
                 <textarea id="textInput" placeholder="Type your text here..."></textarea>
                 <button id="generateText">Generate Handwritten Text</button>
                 <div id="previewContainer"></div>
