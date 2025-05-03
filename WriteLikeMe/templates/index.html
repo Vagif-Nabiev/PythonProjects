@@ -63,6 +63,23 @@
 
         <div class="tab-content" id="generate-tab" style="display: none;">
             <div class="text-generator">
+                <div class="page-style-options">
+                    <h3>Page Style</h3>
+                    <div class="style-options">
+                        <label class="style-option">
+                            <input type="radio" name="pageStyle" value="lined" checked>
+                            <span>Lined Paper</span>
+                        </label>
+                        <label class="style-option">
+                            <input type="radio" name="pageStyle" value="grid">
+                            <span>Grid Paper</span>
+                        </label>
+                        <label class="style-option">
+                            <input type="radio" name="pageStyle" value="blank">
+                            <span>Blank Paper</span>
+                        </label>
+                    </div>
+                </div>
                 <textarea id="textInput" placeholder="Type your text here..."></textarea>
                 <button id="generateText">Generate Handwritten Text</button>
                 <div id="previewContainer"></div>
