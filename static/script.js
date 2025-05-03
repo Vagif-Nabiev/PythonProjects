@@ -10,7 +10,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabButtons = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
     const brushSizeInput = document.getElementById('brushSize');
+    const brushPreview = document.getElementById('brushPreview');
+    const brushSizeValue = document.getElementById('brushSizeValue');
     const lettersGrid = document.getElementById('lettersGrid');
+
+    // Load saved brush size from localStorage
+    const savedBrushSize = localStorage.getItem('brushSize');
+    if (savedBrushSize) {
+        brushSizeInput.value = savedBrushSize;
+        updateBrushPreview(savedBrushSize);
+    }
 
     // Set canvas size for letter drawing
     const canvasWidth = 128;
@@ -22,10 +31,30 @@ document.addEventListener('DOMContentLoaded', () => {
     canvas.style.border = '2px solid #000';
     canvas.style.background = '#fff';
 
-    ctx.lineWidth = 10;
+    // Initialize brush size
+    ctx.lineWidth = brushSizeInput.value * 2;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.strokeStyle = '#000';
+
+    function updateBrushPreview(size) {
+        const previewSize = Math.min(size * 2, 20); // Cap the preview size at 20px
+        brushPreview.style.width = `${previewSize}px`;
+        brushPreview.style.height = `${previewSize}px`;
+        brushSizeValue.textContent = `${size * 2}px`;
+    }
+
+    // Update brush size and preview when slider changes
+    brushSizeInput.addEventListener('input', () => {
+        const size = brushSizeInput.value;
+        ctx.lineWidth = size * 2;
+        updateBrushPreview(size);
+        // Save to localStorage
+        localStorage.setItem('brushSize', size);
+    });
+
+    // Initialize brush preview
+    updateBrushPreview(brushSizeInput.value);
 
     let isDrawing = false;
     let lastX = 0;
@@ -39,8 +68,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Handle both mouse and touch events
         let clientX, clientY;
         if (evt.type.includes('touch')) {
-            clientX = evt.touches[0].clientX;
-            clientY = evt.touches[0].clientY;
+            // Get the first touch point
+            const touch = evt.touches[0] || evt.changedTouches[0];
+            clientX = touch.clientX;
+            clientY = touch.clientY;
         } else {
             clientX = evt.clientX;
             clientY = evt.clientY;
@@ -66,13 +97,13 @@ document.addEventListener('DOMContentLoaded', () => {
         [lastX, lastY] = [pos.x, pos.y];
     });
 
-    // Touch events
+    // Touch events with improved handling
     canvas.addEventListener('touchstart', (e) => {
         e.preventDefault(); // Prevent scrolling
         isDrawing = true;
         const pos = getMousePos(canvas, e);
         [lastX, lastY] = [pos.x, pos.y];
-    });
+    }, { passive: false });
 
     canvas.addEventListener('touchmove', (e) => {
         e.preventDefault(); // Prevent scrolling
@@ -80,13 +111,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const pos = getMousePos(canvas, e);
         drawLine(lastX, lastY, pos.x, pos.y);
         [lastX, lastY] = [pos.x, pos.y];
-    });
+    }, { passive: false });
 
     function drawLine(x1, y1, x2, y2) {
         ctx.beginPath();
         ctx.moveTo(x1, y1);
         ctx.lineTo(x2, y2);
         ctx.strokeStyle = '#000';
+        ctx.lineWidth = brushSizeInput.value * 2;
         ctx.stroke();
     }
 
@@ -98,10 +130,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function stopDrawing() {
         isDrawing = false;
     }
-
-    brushSizeInput.addEventListener('input', () => {
-        ctx.lineWidth = brushSizeInput.value * 2;
-    });
 
     clearButton.addEventListener('click', () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -153,13 +181,19 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Get selected page style
+        const pageStyle = document.querySelector('input[name="pageStyle"]:checked').value;
+
         try {
             const response = await fetch('/generate_text', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ text: text })
+                body: JSON.stringify({ 
+                    text: text,
+                    pageStyle: pageStyle 
+                })
             });
 
             if (response.ok) {
