@@ -53,10 +53,19 @@
                     </div>
                     <div class="brush-control">
                         <label for="brushSize">Brush Size:</label>
-                        <input type="range" id="brushSize" min="1" max="20" value="2">
+                        <div class="brush-size-container">
+                            <input type="range" id="brushSize" min="1" max="20" value="2">
+                            <div class="brush-preview-container">
+                                <div id="brushPreview"></div>
+                                <span id="brushSizeValue">2px</span>
+                            </div>
+                            <p class="brush-help-text">Recommended size: 4-6px for best results</p>
+                        </div>
                     </div>
-                    <button id="saveLetter">Save Letter</button>
-                    <button id="clearCanvas">Clear</button>
+                    <div class="action-buttons">
+                        <button id="saveLetter">Save Letter</button>
+                        <button id="clearCanvas">Clear</button>
+                    </div>
                 </div>
             </div>
         </div>

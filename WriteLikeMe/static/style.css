@@ -67,10 +67,14 @@ h1 {
 
 .controls {
     display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 800px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
 }
 
 .brush-control {
@@ -82,6 +86,15 @@ h1 {
 .brush-control label {
     font-size: 14px;
     color: #333;
+}
+
+.brush-help-text {
+    font-size: 12px;
+    color: #666;
+    margin-top: 8px;
+    font-style: italic;
+    text-align: center;
+    width: 100%;
 }
 
 input[type="range"] {
@@ -145,21 +158,42 @@ button:hover {
 .letter-input-container {
     display: flex;
     flex-direction: column;
-    gap: 5px;
-    margin-bottom: 10px;
+    gap: 10px;
+    width: 100%;
 }
 
 .letter-input-container label {
-    font-size: 14px;
+    font-size: 16px;
     color: #333;
     font-weight: bold;
 }
 
+.letter-input-container input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    width: 100%;
+    max-width: 200px;
+    text-align: center;
+}
+
 .help-text {
-    font-size: 12px;
+    font-size: 14px;
     color: #666;
     margin-top: 5px;
-    max-width: 300px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.action-buttons button {
+    flex: 1;
+    padding: 12px;
+    font-size: 16px;
 }
 
 .instructions {
@@ -531,6 +565,48 @@ button:hover {
 
     .style-option {
         width: 100%;
+        justify-content: center;
+    }
+}
+
+.brush-size-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.brush-preview-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 80px;
+}
+
+#brushPreview {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #000;
+    transition: all 0.2s ease;
+}
+
+#brushSizeValue {
+    font-size: 14px;
+    color: #666;
+    min-width: 40px;
+}
+
+/* Mobile styles for brush preview */
+@media screen and (max-width: 768px) {
+    .brush-size-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .brush-preview-container {
         justify-content: center;
     }
 } 

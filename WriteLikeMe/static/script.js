@@ -10,7 +10,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabButtons = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
     const brushSizeInput = document.getElementById('brushSize');
+    const brushPreview = document.getElementById('brushPreview');
+    const brushSizeValue = document.getElementById('brushSizeValue');
     const lettersGrid = document.getElementById('lettersGrid');
+
+    // Load saved brush size from localStorage
+    const savedBrushSize = localStorage.getItem('brushSize');
+    if (savedBrushSize) {
+        brushSizeInput.value = savedBrushSize;
+        updateBrushPreview(savedBrushSize);
+    }
 
     // Set canvas size for letter drawing
     const canvasWidth = 128;
@@ -22,10 +31,30 @@ document.addEventListener('DOMContentLoaded', () => {
     canvas.style.border = '2px solid #000';
     canvas.style.background = '#fff';
 
-    ctx.lineWidth = 10;
+    // Initialize brush size
+    ctx.lineWidth = brushSizeInput.value * 2;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.strokeStyle = '#000';
+
+    function updateBrushPreview(size) {
+        const previewSize = Math.min(size * 2, 20); // Cap the preview size at 20px
+        brushPreview.style.width = `${previewSize}px`;
+        brushPreview.style.height = `${previewSize}px`;
+        brushSizeValue.textContent = `${size * 2}px`;
+    }
+
+    // Update brush size and preview when slider changes
+    brushSizeInput.addEventListener('input', () => {
+        const size = brushSizeInput.value;
+        ctx.lineWidth = size * 2;
+        updateBrushPreview(size);
+        // Save to localStorage
+        localStorage.setItem('brushSize', size);
+    });
+
+    // Initialize brush preview
+    updateBrushPreview(brushSizeInput.value);
 
     let isDrawing = false;
     let lastX = 0;
@@ -101,10 +130,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function stopDrawing() {
         isDrawing = false;
     }
-
-    brushSizeInput.addEventListener('input', () => {
-        ctx.lineWidth = brushSizeInput.value * 2;
-    });
 
     clearButton.addEventListener('click', () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
