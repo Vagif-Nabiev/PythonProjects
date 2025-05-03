@@ -53,6 +53,7 @@ def save_letter():
 def generate_text():
     data = request.json
     text = data['text']
+    page_style = data.get('pageStyle', 'lined')  # Default to lined if not specified
 
     canvas_width = 1000
     canvas_height = 1000
@@ -63,8 +64,18 @@ def generate_text():
     canvas = Image.new("RGB", (canvas_width, canvas_height), "white")
     draw = ImageDraw.Draw(canvas)
 
-    for line_y in range(0, canvas_height, line_spacing):
-        draw.line([(0, line_y), (canvas_width, line_y)], fill="lightgray", width=1)
+    # Draw page style based on selection
+    if page_style == 'lined':
+        # Draw horizontal lines
+        for line_y in range(0, canvas_height, line_spacing):
+            draw.line([(0, line_y), (canvas_width, line_y)], fill="lightgray", width=1)
+    elif page_style == 'grid':
+        # Draw both horizontal and vertical lines
+        for line_y in range(0, canvas_height, line_spacing):
+            draw.line([(0, line_y), (canvas_width, line_y)], fill="lightgray", width=1)
+        for line_x in range(0, canvas_width, line_spacing):
+            draw.line([(line_x, 0), (line_x, canvas_height)], fill="lightgray", width=1)
+    # For blank style, no lines are drawn
 
     line_height = line_spacing - 10
 
