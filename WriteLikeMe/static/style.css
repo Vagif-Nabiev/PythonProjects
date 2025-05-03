@@ -359,10 +359,11 @@ button:hover {
 @media screen and (max-width: 768px) {
     body {
         padding: 10px;
+        touch-action: none; /* Prevent default touch behaviors */
     }
 
     .container {
-        padding: 10px;
+        padding: 15px;
     }
 
     h1 {
@@ -371,6 +372,7 @@ button:hover {
 
     .instructions {
         padding: 15px;
+        font-size: 14px;
     }
 
     .instructions h2 {
@@ -378,7 +380,11 @@ button:hover {
     }
 
     #drawingCanvas {
-        max-width: 100%;
+        width: 100%;
+        max-width: 300px;
+        height: auto;
+        aspect-ratio: 1;
+        touch-action: none; /* Prevent default touch behaviors */
     }
 
     .text-generator {
@@ -387,50 +393,73 @@ button:hover {
 
     #textInput {
         height: 80px;
+        font-size: 16px;
     }
 
     #lettersGrid {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-        gap: 10px;
-        padding: 10px;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 15px;
+        padding: 15px;
     }
 
     .letter-item {
         padding: 10px;
+        max-width: 150px;
     }
 }
 
 @media screen and (max-width: 480px) {
     .tabs {
-        flex-direction: column;
+        flex-wrap: wrap;
+        gap: 5px;
     }
 
     .tab-btn {
-        width: 100%;
-        margin: 2px 0;
+        padding: 8px 15px;
+        font-size: 14px;
+        margin: 2px;
     }
 
     #lettersGrid {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 10px;
     }
 
     .letter-item {
-        max-width: none;
+        max-width: 120px;
     }
 }
 
 /* Touch device optimizations */
 @media (hover: none) {
     button {
-        padding: 12px 16px; /* Larger touch targets */
+        padding: 10px 20px;
+        min-width: 44px; /* Minimum touch target size */
+        min-height: 44px;
     }
 
     .tab-btn {
-        padding: 12px 20px;
+        padding: 12px 24px;
+        min-width: 44px;
+        min-height: 44px;
     }
 
     input[type="range"] {
-        height: 30px; /* Larger touch target for sliders */
+        -webkit-appearance: none;
+        width: 100%;
+        height: 8px;
+        background: #ddd;
+        border-radius: 4px;
+        outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 24px;
+        height: 24px;
+        background: #4CAF50;
+        border-radius: 50%;
+        cursor: pointer;
     }
 }
 

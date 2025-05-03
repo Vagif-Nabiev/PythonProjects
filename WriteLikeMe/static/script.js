@@ -39,8 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Handle both mouse and touch events
         let clientX, clientY;
         if (evt.type.includes('touch')) {
-            clientX = evt.touches[0].clientX;
-            clientY = evt.touches[0].clientY;
+            // Get the first touch point
+            const touch = evt.touches[0] || evt.changedTouches[0];
+            clientX = touch.clientX;
+            clientY = touch.clientY;
         } else {
             clientX = evt.clientX;
             clientY = evt.clientY;
@@ -66,13 +68,13 @@ document.addEventListener('DOMContentLoaded', () => {
         [lastX, lastY] = [pos.x, pos.y];
     });
 
-    // Touch events
+    // Touch events with improved handling
     canvas.addEventListener('touchstart', (e) => {
         e.preventDefault(); // Prevent scrolling
         isDrawing = true;
         const pos = getMousePos(canvas, e);
         [lastX, lastY] = [pos.x, pos.y];
-    });
+    }, { passive: false });
 
     canvas.addEventListener('touchmove', (e) => {
         e.preventDefault(); // Prevent scrolling
@@ -80,13 +82,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const pos = getMousePos(canvas, e);
         drawLine(lastX, lastY, pos.x, pos.y);
         [lastX, lastY] = [pos.x, pos.y];
-    });
+    }, { passive: false });
 
     function drawLine(x1, y1, x2, y2) {
         ctx.beginPath();
         ctx.moveTo(x1, y1);
         ctx.lineTo(x2, y2);
         ctx.strokeStyle = '#000';
+        ctx.lineWidth = brushSizeInput.value * 2;
         ctx.stroke();
     }
 
