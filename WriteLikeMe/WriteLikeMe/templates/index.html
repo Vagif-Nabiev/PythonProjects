@@ -6,21 +6,7 @@
     <title>Handwritten Text Generator</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body {% if logged_in %}class="logged-in"{% endif %}>
-    <nav>
-        <div class="nav-container">
-            <h1>WriteLikeMe</h1>
-            <div class="nav-links">
-                {% if current_user.is_authenticated %}
-                    <span>Welcome, {{ current_user.username }}</span>
-                    <a href="{{ url_for('logout') }}">Logout</a>
-                {% else %}
-                    <a href="{{ url_for('login') }}">Login</a>
-                    <a href="{{ url_for('register') }}">Register</a>
-                {% endif %}
-            </div>
-        </div>
-    </nav>
+<body>
     <div class="container">
         <h1>Handwritten Text Generator</h1>
         
@@ -106,10 +92,6 @@
                 <textarea id="textInput" placeholder="Type your text here..."></textarea>
                 <button id="generateText">Generate Handwritten Text</button>
                 <div id="previewContainer"></div>
-                <div class="download-buttons" id="downloadButtons" style="display: none;">
-                    <button id="downloadPNG" class="download-btn">Download PNG</button>
-                    <button id="downloadPDF" class="download-btn">Download PDF</button>
-                </div>
             </div>
         </div>
 
@@ -141,9 +123,6 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div id="loginPrompt" class="login-prompt" style="display: none;">
-        <p>Please <a href="/login">log in</a> to download your generated text.</p>
     </div>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>

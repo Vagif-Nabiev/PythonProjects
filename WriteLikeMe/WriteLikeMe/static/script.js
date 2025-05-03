@@ -173,201 +173,44 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Function to check if user is logged in
-    function isUserLoggedIn() {
-        return document.body.classList.contains('logged-in');
-    }
+    // Generate text
+    generateButton.addEventListener('click', async () => {
+        const text = textInput.value;
+        if (!text) {
+            alert('Please enter some text');
+            return;
+        }
 
-    // Function to remove message with fade effect
-    function removeMessageWithFade(element) {
-        if (!element) return;
-        
-        // Add fade-out class
-        element.classList.add('fade-out');
-        
-        // Remove element after animation
-        setTimeout(() => {
-            if (element && element.parentNode) {
-                element.parentNode.removeChild(element);
-            }
-        }, 500); // 500ms = duration of fade animation
-    }
-
-    // Function to handle message display and auto-removal
-    function showTemporaryMessage(message, type) {
-        // Remove any existing messages
-        const existingMessages = document.querySelectorAll('.error-message, .warning-message');
-        existingMessages.forEach(msg => {
-            if (msg.parentNode) {
-                msg.parentNode.removeChild(msg);
-            }
-        });
-        
-        // Create new message element
-        const messageDiv = document.createElement('div');
-        messageDiv.className = type + '-message';
-        messageDiv.textContent = message;
-        
-        // Insert message before preview container
-        const previewContainer = document.getElementById('previewContainer');
-        previewContainer.insertAdjacentElement('beforebegin', messageDiv);
-        
-        // Set timeout to remove message
-        setTimeout(() => removeMessageWithFade(messageDiv), 3000);
-    }
-
-    // Update the generate text function
-    document.getElementById('generateText').addEventListener('click', function() {
-        const text = document.getElementById('textInput').value;
+        // Get selected page style
         const pageStyle = document.querySelector('input[name="pageStyle"]:checked').value;
-        
-        fetch('/generate_text', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ text, pageStyle })
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(data => {
-                    throw new Error(data.message || 'Error generating text');
-                });
-            }
-            return response.json();
-        })
-        .then(data => {
-            const previewContainer = document.getElementById('previewContainer');
-            previewContainer.innerHTML = `<img src="${data.image}" alt="Generated text" style="max-width: 100%;">`;
-            
-            // Store the current text and page style for download
-            window.currentGeneratedText = { text, pageStyle };
-            
-            // Show appropriate buttons/message based on login status
-            const downloadButtons = document.getElementById('downloadButtons');
-            const loginPrompt = document.getElementById('loginPrompt');
-            
-            if (isUserLoggedIn()) {
-                downloadButtons.style.display = 'flex';
-                loginPrompt.style.display = 'none';
+
+        try {
+            const response = await fetch('/generate_text', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    text: text,
+                    pageStyle: pageStyle 
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                let warningHtml = '';
+                if (data.warning) {
+                    warningHtml = `<div style="color: #b30000; background: #fff3cd; border: 1px solid #ffeeba; padding: 10px; margin-bottom: 10px; border-radius: 6px; font-weight: bold;">${data.warning}</div>`;
+                }
+                previewContainer.innerHTML = `${warningHtml}<img src="${data.image}" alt="Generated text" style="max-width: 100%;">`;
             } else {
-                downloadButtons.style.display = 'none';
-                loginPrompt.style.display = 'block';
+                alert('Error generating text');
             }
-            
-            // Show warning if there are missing letters
-            if (data.warning) {
-                showTemporaryMessage(data.warning, 'warning');
-            }
-        })
-        .catch(error => {
+        } catch (error) {
             console.error('Error:', error);
-            const previewContainer = document.getElementById('previewContainer');
-            previewContainer.innerHTML = '';
-            
-            // Show error message
-            showTemporaryMessage(error.message, 'error');
-            
-            // Hide download buttons and login prompt
-            document.getElementById('downloadButtons').style.display = 'none';
-            document.getElementById('loginPrompt').style.display = 'none';
-        });
+            alert('Error generating text');
+        }
     });
-
-    // Remove the download button event listeners for non-logged-in users
-    if (isUserLoggedIn()) {
-        document.getElementById('downloadPNG').addEventListener('click', async () => {
-            if (!window.currentGeneratedText) return;
-            
-            try {
-                const response = await fetch('/download/png', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(window.currentGeneratedText),
-                });
-                
-                if (response.ok) {
-                    // Get the blob from the response
-                    const blob = await response.blob();
-                    
-                    // Create a URL for the blob
-                    const url = window.URL.createObjectURL(blob);
-                    
-                    // Create a temporary link element
-                    const a = document.createElement('a');
-                    a.style.display = 'none';
-                    a.href = url;
-                    a.download = 'handwritten_text.png';
-                    
-                    // Add the link to the document, click it, and remove it
-                    document.body.appendChild(a);
-                    a.click();
-                    
-                    // Clean up
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
-                } else if (response.status === 401) {
-                    // User is not logged in
-                    alert('Please log in to download files');
-                    window.location.href = '/login';
-                } else {
-                    const errorData = await response.json();
-                    alert(errorData.error || 'Error downloading PNG file. Please try again.');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('An error occurred while downloading the PNG file.');
-            }
-        });
-
-        document.getElementById('downloadPDF').addEventListener('click', async () => {
-            if (!window.currentGeneratedText) return;
-            
-            try {
-                const response = await fetch('/download/pdf', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(window.currentGeneratedText),
-                });
-                
-                if (response.ok) {
-                    // Get the blob from the response
-                    const blob = await response.blob();
-                    
-                    // Create a URL for the blob
-                    const url = window.URL.createObjectURL(blob);
-                    
-                    // Create a temporary link element
-                    const a = document.createElement('a');
-                    a.style.display = 'none';
-                    a.href = url;
-                    a.download = 'handwritten_text.pdf';
-                    
-                    // Add the link to the document, click it, and remove it
-                    document.body.appendChild(a);
-                    a.click();
-                    
-                    // Clean up
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
-                } else if (response.status === 401) {
-                    // User is not logged in
-                    alert('Please log in to download files');
-                    window.location.href = '/login';
-                } else {
-                    const errorData = await response.json();
-                    alert(errorData.error || 'Error downloading PDF file. Please try again.');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('An error occurred while downloading the PDF file.');
-            }
-        });
-    }
 
     // --- Manage Letters Tab Logic ---
     async function loadLetters() {
@@ -465,26 +308,5 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadLetters();
             }
         });
-    });
-
-    // Add cleanup function for temporary letters
-    function cleanupTemporaryLetters() {
-        // Only clear letters if this is a real window close (not navigation)
-        if (!isUserLoggedIn() && window.performance.navigation.type === PerformanceNavigation.TYPE_RELOAD) {
-            fetch('/clear_temp_letters', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            }).catch(error => console.error('Error cleaning up temporary letters:', error));
-        }
-    }
-
-    // Add event listener for actual window close
-    window.addEventListener('beforeunload', function(e) {
-        // Only clear if this is a real window close (not navigation)
-        if (!isUserLoggedIn() && !e.target.activeElement?.closest('a')) {
-            cleanupTemporaryLetters();
-        }
     });
 }); 
