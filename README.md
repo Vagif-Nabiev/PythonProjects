@@ -51,3 +51,30 @@ Enjoy the [game](https://github.com/Vagif-Nabiev/PythonProjects/blob/main/geogue
 5. Start drawing your letters and generating handwritten text!
 
 </details>
+
+<details>
+<summary>3. Caesar Cipher</summary>
+
+## How It Works:
+- A classic encryption/decryption tool that implements the Caesar Cipher algorithm.
+- Users can encode or decode messages by shifting letters and numbers by a specified amount.
+- The program maintains a history of all encoding and decoding operations.
+- Supports both uppercase and lowercase letters, numbers, and preserves special characters.
+
+## Features:
+- Encrypt messages with a custom shift value (1-25)
+- Decrypt messages using the same shift value
+- View operation history
+- Support for letters, numbers, and special characters
+- Case-sensitive encryption/decryption
+
+## How to Use:
+1. Run the [program](https://github.com/Vagif-Nabiev/PythonProjects/blob/main/caesar_cipher.py)
+2. Choose to either 'encode' or 'decode'
+3. Enter your message
+4. Specify the shift amount (1-25)
+5. View the result
+6. Optionally check the history of operations
+7. Continue or exit the program
+
+</details>
