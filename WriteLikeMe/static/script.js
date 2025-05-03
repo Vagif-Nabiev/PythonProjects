@@ -156,13 +156,19 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Get selected page style
+        const pageStyle = document.querySelector('input[name="pageStyle"]:checked').value;
+
         try {
             const response = await fetch('/generate_text', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ text: text })
+                body: JSON.stringify({ 
+                    text: text,
+                    pageStyle: pageStyle 
+                })
             });
 
             if (response.ok) {
