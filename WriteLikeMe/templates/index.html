@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Handwritten Text Generator</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QT8KJRS1RV"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-QT8KJRS1RV');
+    </script>
 </head>
 <body {% if logged_in %}class="logged-in"{% endif %}>
     <nav>
