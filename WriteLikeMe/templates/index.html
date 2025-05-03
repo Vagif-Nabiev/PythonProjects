@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Handwritten Text Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Handwritten Text Generator</h1>
+        
+        <div class="instructions">
+            <h2>How to Use This Tool:</h2>
+            <ol>
+                <li><strong>Draw Letters:</strong> First, draw each letter of the alphabet you want to use. For each letter:
+                    <ul>
+                        <li>Draw the letter in the canvas</li>
+                        <li>Type the same letter in the input box below</li>
+                        <li>Click "Save Letter" to save it</li>
+                    </ul>
+                </li>
+                <li><strong>Generate Text:</strong> After saving your letters:
+                    <ul>
+                        <li>Go to the "Generate Text" tab</li>
+                        <li>Type the text you want to convert</li>
+                        <li>Click "Generate Handwritten Text"</li>
+                    </ul>
+                </li>
+                <li><strong>Manage Letters:</strong> Use the "Manage Letters" tab to:
+                    <ul>
+                        <li>View all your saved letters</li>
+                        <li>Delete any letters you want to redraw</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="draw">Draw Letters</button>
+            <button class="tab-btn" data-tab="generate">Generate Text</button>
+            <button class="tab-btn" data-tab="manage">Manage Letters</button>
+        </div>
+
+        <div class="tab-content" id="draw-tab">
+            <div class="drawing-container">
+                <canvas id="drawingCanvas"></canvas>
+                <div class="controls">
+                    <div class="letter-input-container">
+                        <label for="letterInput">Enter the letter you're drawing:</label>
+                        <input type="text" id="letterInput" placeholder="Enter" maxlength="1">
+                        <p class="help-text">Type a single letter (a-z) that matches what you're drawing. This helps the system identify and use your letter correctly when generating text.</p>
+                    </div>
+                    <div class="brush-control">
+                        <label for="brushSize">Brush Size:</label>
+                        <input type="range" id="brushSize" min="1" max="20" value="2">
+                    </div>
+                    <button id="saveLetter">Save Letter</button>
+                    <button id="clearCanvas">Clear</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="generate-tab" style="display: none;">
+            <div class="text-generator">
+                <div class="page-style-options">
+                    <h3>Page Style</h3>
+                    <div class="style-options">
+                        <label class="style-option">
+                            <input type="radio" name="pageStyle" value="lined" checked>
+                            <span>Lined Paper</span>
+                        </label>
+                        <label class="style-option">
+                            <input type="radio" name="pageStyle" value="grid">
+                            <span>Grid Paper</span>
+                        </label>
+                        <label class="style-option">
+                            <input type="radio" name="pageStyle" value="blank">
+                            <span>Blank Paper</span>
+                        </label>
+                    </div>
+                </div>
+                <textarea id="textInput" placeholder="Type your text here..."></textarea>
+                <button id="generateText">Generate Handwritten Text</button>
+                <div id="previewContainer"></div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="manage-tab" style="display: none;">
+            <div id="lettersManagerContainer">
+                <h2>Manage Saved Letters</h2>
+                <div class="letter-groups">
+                    <!-- Lowercase letters -->
+                    <div class="letter-group">
+                        <div class="group-header" data-group="lowercase">
+                            <span>Lowercase Letters</span>
+                            <span class="arrow">▼</span>
+                        </div>
+                        <div class="group-content" id="lowercase-letters">
+                            <div id="lettersGrid"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Uppercase letters -->
+                    <div class="letter-group">
+                        <div class="group-header" data-group="uppercase">
+                            <span>Uppercase Letters</span>
+                            <span class="arrow">▼</span>
+                        </div>
+                        <div class="group-content" id="uppercase-letters">
+                            <div id="uppercaseGrid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html> 
