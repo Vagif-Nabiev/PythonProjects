@@ -38,3 +38,9 @@ Thumbs.db
 # Project specific
 letters/
 *.log 
+
+# Database files
+*.db
+
+# Temp or generated images
+temp_letters/
