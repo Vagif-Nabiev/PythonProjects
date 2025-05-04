@@ -1,15 +1,20 @@
-## WriteLikeMe
+# WriteLikeMe
 
 A web application that allows users to create their own handwriting style and generate text in that style.
 
-### Features:
-- Draw and save individual letters
-- Generate text using your saved letters
-- Three page styles: blank, lined, and grid
-- Letter management system
-- Web-based interface using Flask
-- Real-time preview of generated text
+🔗 **Live Demo**: [https://vagifnbv.pythonanywhere.com](https://vagifnbv.pythonanywhere.com)
 
+---
+
+## Features
+- ✍️ Draw and save individual letters
+- 📝 Generate text using your saved letters
+- 📄 Three page styles: blank, lined, and grid
+- 📂 Letter management system
+- 🌐 Web-based interface using Flask
+- 🔁 Real-time preview of generated text
+
+---
 ### Setup:
 1. Install required packages:
 ```bash
