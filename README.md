@@ -1,40 +1,4 @@
-# Python Projects Collection
-
-This repository contains three Python projects that demonstrate different aspects of programming and web development.
-
-## 1. Caesar Cipher
-
-A classic encryption technique implementation that allows users to encrypt and decrypt messages using the Caesar cipher method.
-
-### Features:
-- Encrypt text by shifting letters by a specified number
-- Decrypt text using the same shift value
-- Simple command-line interface
-- Handles both uppercase and lowercase letters
-- Preserves spaces and special characters
-
-### Usage:
-```python
-python caesar_cipher.py
-```
-
-## 2. GeoGuess
-
-A geography quiz game that tests your knowledge of countries and their capitals.
-
-### Features:
-- Multiple-choice questions about countries and capitals
-- Score tracking
-- Random question selection
-- User-friendly interface
-- Educational and fun
-
-### Usage:
-```python
-python geoguess.py
-```
-
-## 3. WriteLikeMe
+## WriteLikeMe
 
 A web application that allows users to create their own handwriting style and generate text in that style.
 
