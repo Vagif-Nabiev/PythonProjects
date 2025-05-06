@@ -13,14 +13,18 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.utils import ImageReader
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///writelike.db'
+app.config['SECRET_KEY'] = 'your-secret-key-here'  # Change this to a secure secret key
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/Vagifnbv/mysite/writelike.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
+def add_vary_cookie_header(response):
+    response.headers['Vary'] = 'Cookie'
+    return response
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -54,7 +58,7 @@ def save_base64_image(base64_string, filename, is_temporary=False):
     save_dir = TEMP_LETTERS_DIR if is_temporary else LETTERS_DIR
     full_path = os.path.join(save_dir, filename)
     image.save(full_path, 'PNG')
-    
+
     # If temporary, store the filename in session
     if is_temporary:
         if 'temp_letters' not in session:
@@ -75,15 +79,15 @@ def save_letter():
     data = request.json
     letter = data['letter']
     image_data = data['image']
-    
+
     # Generate filename
-    count = len([f for f in os.listdir(LETTERS_DIR if current_user.is_authenticated else TEMP_LETTERS_DIR) 
+    count = len([f for f in os.listdir(LETTERS_DIR if current_user.is_authenticated else TEMP_LETTERS_DIR)
                  if f.startswith(letter)])
     filename = f"{letter}{count + 1}_{count + 1}.png"
-    
+
     # Save based on authentication status
     save_base64_image(image_data, filename, not current_user.is_authenticated)
-    
+
     return jsonify({'success': True})
 
 @app.route('/generate_text', methods=['POST'])
@@ -158,7 +162,7 @@ def generate_text():
                 letter_files = [f for f in os.listdir(LETTERS_DIR) if f.startswith(char.lower())]
             if not letter_files:
                 letter_files = [f for f in os.listdir(LETTERS_DIR) if f.startswith(char.upper())]
-        
+
         if not letter_files:
             # Search in temporary storage
             temp_letters = session.get('temp_letters', [])
@@ -177,7 +181,7 @@ def generate_text():
             img_path = os.path.join(LETTERS_DIR, selected_file)
         else:
             img_path = os.path.join(TEMP_LETTERS_DIR, selected_file)
-            
+
         letter_img = Image.open(img_path).convert("RGBA")
 
         aspect_ratio = letter_img.width / letter_img.height
@@ -221,7 +225,7 @@ def list_letters():
         # Get temporary letters from session
         temp_letters = session.get('temp_letters', [])
         files = [f for f in temp_letters if os.path.exists(os.path.join(TEMP_LETTERS_DIR, f))]
-    
+
     letters = []
     for f in files:
         letter = f[0]
@@ -234,7 +238,7 @@ def delete_letter():
     filename = data.get('filename')
     if not filename:
         return jsonify({'success': False, 'error': 'No filename provided'}), 400
-    
+
     # Delete from appropriate directory
     if current_user.is_authenticated:
         file_path = os.path.join(LETTERS_DIR, filename)
@@ -244,7 +248,7 @@ def delete_letter():
         if 'temp_letters' in session:
             session['temp_letters'] = [f for f in session['temp_letters'] if f != filename]
             session.modified = True
-    
+
     if os.path.exists(file_path):
         os.remove(file_path)
         return jsonify({'success': True})
@@ -255,51 +259,51 @@ def delete_letter():
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
-    
+
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
         user = User.query.filter_by(username=username).first()
-        
+
         if user and check_password_hash(user.password, password):
             login_user(user)
             return redirect(url_for('index'))
         else:
             flash('Invalid username or password')
-    
+
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
-    
+
     if request.method == 'POST':
         username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
-        
+
         if password != confirm_password:
             flash('Passwords do not match')
             return redirect(url_for('register'))
-        
+
         if User.query.filter_by(username=username).first():
             flash('Username already exists')
             return redirect(url_for('register'))
-        
+
         if User.query.filter_by(email=email).first():
             flash('Email already exists')
             return redirect(url_for('register'))
-        
+
         hashed_password = generate_password_hash(password)
         new_user = User(username=username, email=email, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
-        
+
         flash('Registration successful! Please login.')
         return redirect(url_for('login'))
-    
+
     return render_template('register.html')
 
 @app.route('/logout')
@@ -322,7 +326,7 @@ def download_text(format):
         data = request.json
         text = data['text']
         page_style = data.get('pageStyle', 'lined')
-        
+
         # Generate the image as before
         canvas_width = 1000
         canvas_height = 1000
@@ -386,7 +390,7 @@ def download_text(format):
             output = BytesIO()
             canvas_img.save(output, format='PNG', optimize=True, quality=95)
             output.seek(0)
-            
+
             response = make_response(output.getvalue())
             response.headers['Content-Type'] = 'image/png'
             response.headers['Content-Disposition'] = 'attachment; filename=handwritten_text.png'
@@ -396,23 +400,23 @@ def download_text(format):
             # Create a temporary directory if it doesn't exist
             temp_dir = os.path.join(os.path.dirname(__file__), 'temp')
             os.makedirs(temp_dir, exist_ok=True)
-            
+
             # Save the image temporarily
             temp_img_path = os.path.join(temp_dir, 'temp_image.png')
             canvas_img.save(temp_img_path, 'PNG', quality=95)
-            
+
             # Create PDF
             temp_pdf_path = os.path.join(temp_dir, 'temp.pdf')
             c = canvas.Canvas(temp_pdf_path, pagesize=letter)
-            
+
             # Get the dimensions of the letter size page
             page_width, page_height = letter
-            
+
             # Calculate scaling to fit the image on the page with margins
             margin = 50  # points
             image_aspect = canvas_width / canvas_height
             page_aspect = (page_width - 2*margin) / (page_height - 2*margin)
-            
+
             if image_aspect > page_aspect:
                 # Image is wider than page ratio
                 width = page_width - 2*margin
@@ -421,23 +425,23 @@ def download_text(format):
                 # Image is taller than page ratio
                 height = page_height - 2*margin
                 width = height * image_aspect
-            
+
             # Center the image on the page
             x = (page_width - width) / 2
             y = (page_height - height) / 2
-            
+
             # Draw the image
             c.drawImage(temp_img_path, x, y, width=width, height=height)
             c.save()
-            
+
             # Read the PDF file
             with open(temp_pdf_path, 'rb') as pdf_file:
                 pdf_data = pdf_file.read()
-            
+
             # Clean up temporary files
             os.remove(temp_img_path)
             os.remove(temp_pdf_path)
-            
+
             response = make_response(pdf_data)
             response.headers['Content-Type'] = 'application/pdf'
             response.headers['Content-Disposition'] = 'attachment; filename=handwritten_text.pdf'
@@ -459,7 +463,7 @@ def clear_temp_letters():
         if not any(page in referrer for page in ['/login', '/register']):
             # Clear the session's temp_letters list
             session.pop('temp_letters', None)
-            
+
             # Remove all files from TEMP_LETTERS_DIR
             try:
                 for filename in os.listdir(TEMP_LETTERS_DIR):
@@ -468,8 +472,8 @@ def clear_temp_letters():
                         os.unlink(file_path)
             except Exception as e:
                 print(f"Error clearing temporary letters: {e}")
-    
+
     return jsonify({'status': 'success'})
 
 if __name__ == '__main__':
-    app.run(debug=True) 
+    app.run(debug=False)
